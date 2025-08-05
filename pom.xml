@@ -64,6 +64,12 @@
             <artifactId>guava</artifactId>
             <version>31.1-jre</version> <!-- 最新版本 -->
         </dependency>
+        <!--aspectj-->
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+            <version>1.9.19</version>
+        </dependency>
     </dependencies>
 
     <build>

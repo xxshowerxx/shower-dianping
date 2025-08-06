@@ -37,7 +37,7 @@ public class SimpleRedisILock implements ILock {
         return Boolean.TRUE.equals(success);
     }
     @Override
-    public void unLock() {
+    public void unlock() {
         // 调用lua脚本
         stringRedisTemplate.execute(
                 UNLOCK_SCRIPT,

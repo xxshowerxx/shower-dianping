@@ -70,6 +70,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
             return Result.fail("手机号格式错误！");
         }
 
+/*
         // 3.从Redis中取出验证码
         String code = stringRedisTemplate.opsForValue().get(LOGIN_CODE_KEY + phone);
 
@@ -78,6 +79,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
             // 5.错误，返回失败
             return Result.fail("验证码错误！");
         }
+*/
 
         // 6.从数据库中查找手机号是否存在
         User user = query().eq("phone", phone).one();

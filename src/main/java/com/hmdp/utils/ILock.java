@@ -8,8 +8,5 @@ public interface ILock {
      */
     boolean tryLock(Long timeoutSec);
 
-    /**
-     * 释放锁
-     */
     void unlock();
 }

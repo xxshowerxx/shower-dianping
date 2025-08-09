@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.lang.UUID;
 import cn.hutool.core.util.RandomUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hmdp.dto.LoginFormDTO;
 import com.hmdp.dto.Result;
@@ -12,13 +13,17 @@ import com.hmdp.entity.User;
 import com.hmdp.mapper.UserMapper;
 import com.hmdp.service.IUserService;
 import com.hmdp.utils.SystemConstants;
+import com.hmdp.utils.UserHolder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import com.hmdp.utils.RegexUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.Map;
@@ -106,6 +111,36 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         // 9.返回token
         return Result.ok(token);
 
+    }
+
+    @Override
+    public Result logout() {
+        // 1. 从 ThreadLocal 获取当前用户
+        UserDTO user = UserHolder.getUser();
+        if (user == null) {
+            return Result.fail("未登录或已退出！");
+        }
+
+        // 2. 获取 token
+        ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (attrs == null) {
+            return Result.fail("无法获取请求信息！");
+        }
+        HttpServletRequest request = attrs.getRequest();
+        String token = request.getHeader("authorization");
+
+        if (StrUtil.isBlank(token)) {
+            return Result.fail("未登录或已退出！");
+        }
+
+        // 3. 删除 Redis 中对应的 token key
+        String tokenKey = LOGIN_USER_KEY + token;
+        Boolean deleted = stringRedisTemplate.delete(tokenKey);
+
+        // 4. 返回结果
+        return deleted != null && deleted
+                ? Result.ok("退出成功")
+                : Result.fail("退出失败");
     }
 
     private User createWithPhone(String phone) {
